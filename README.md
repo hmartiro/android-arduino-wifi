@@ -43,3 +43,6 @@ link between an Arduino and an Android device using WiFi.
  * WiFly takes a long time (~20s) to connect to a network on startup (watch the LEDs).
  * After disconnecting from a client, the WiFly takes about 6 seconds before
  it can connect to another client (again, watch the LEDs).
+ * I had an issue with a version of the WiFly library where it would not
+ initialize until it heard a '*READY*' message from the chip, which never came.
+ If you get stuck at WiFly.begin(), look into this.
