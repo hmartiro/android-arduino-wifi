@@ -1,6 +1,6 @@
 /**
  * WiFi communication demo using the WiFly module.
- * 
+ *
  * Author: Hayk Martirosyan
  */
  
@@ -34,21 +34,21 @@ void setup() {
   server.begin();
 }
 
+/**
+ * Called whenever a newline-delimited message is received.
+ */
 void message_received(String msg) {
   Serial.println("[RX] " + msg);
 }
 
-int last_disconnect = 0;
-
 void loop() {
   
-  if(millis() - last_disconnect < 6000) return;
-  Serial.println("checking for available client");
-  
+  // Looks for a connected client
   Client client = server.available();
   
   if (client) {
     
+    // Buffer to store received data
     String rx_buffer = "";
     
     // Last time a ping was sent
@@ -58,6 +58,9 @@ void loop() {
     
     while (client.connected()) {
       
+      // Read data from the client, and when we hit a newline,
+      // invoke the message_received callback and echo the message
+      // back to the client.
       if(client.available()) {
         while(client.available()) {
           
@@ -90,7 +93,7 @@ void loop() {
     // Give the client time to receive data before closing
     Serial.println("Disconnecting from client.");
     delay(100);
+    client.flush();
     client.stop();
-    last_disconnect = millis();
   }
 }

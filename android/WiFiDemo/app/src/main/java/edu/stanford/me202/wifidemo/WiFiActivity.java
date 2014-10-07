@@ -17,6 +17,8 @@ import java.io.OutputStream;
 /**
  * Simple UI demonstrating how to open a serial communication link to a
  * remote host over WiFi, send and receive messages, and update the display.
+ *
+ * Author: Hayk Martirosyan
  */
 public class WiFiActivity extends Activity {
 
