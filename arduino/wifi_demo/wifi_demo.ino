@@ -12,9 +12,7 @@ Server server(80);
 
 // How often to ping (milliseconds)
 static const int PING_TIME = 1000;
-
-// Last time a ping was sent
-int senttime = millis();
+static const String PING_MSG = "SOCKET_PING";
 
 void setup() {
   
@@ -40,12 +38,22 @@ void message_received(String msg) {
   Serial.println("[RX] " + msg);
 }
 
+int last_disconnect = 0;
+
 void loop() {
+  
+  if(millis() - last_disconnect < 6000) return;
+  Serial.println("checking for available client");
   
   Client client = server.available();
   
   if (client) {
+    
     String rx_buffer = "";
+    
+    // Last time a ping was sent
+    int senttime = millis();
+
     Serial.println("Connected to client.");
     
     while (client.connected()) {
@@ -73,9 +81,8 @@ void loop() {
       // Send a ping message once a second to keep the connection open
       int now = millis();
       if (now - senttime > PING_TIME) {
-        String msg = "SOCKET_PING";
-        Serial.println("[TX] " + msg);
-        client.println(msg);
+        Serial.println("[TX] " + PING_MSG);
+        client.println(PING_MSG);
         senttime = now;
       }
     }
@@ -84,5 +91,6 @@ void loop() {
     Serial.println("Disconnecting from client.");
     delay(100);
     client.stop();
+    last_disconnect = millis();
   }
 }

@@ -195,7 +195,7 @@ public class WiFiActivity extends Activity {
                 if(socket.isConnected()) {
                     Log.v(TAG, "Connection established!");
                     publishProgress(CONNECTED_MSG);
-                } else return null;
+                } else disconnectSignal = true;
 
                 // Read messages in a loop until disconnected
                 while(!disconnectSignal) {
