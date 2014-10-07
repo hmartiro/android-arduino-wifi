@@ -35,7 +35,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="IP Address"
-            android:text="192.168.8.138"
             android:layout_weight="1" />
 
         <EditText
@@ -43,7 +42,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Port"
-            android:text="80"
             android:layout_weight="0.65" />
     </LinearLayout>
 

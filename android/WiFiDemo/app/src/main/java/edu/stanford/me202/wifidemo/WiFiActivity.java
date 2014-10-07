@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import android.os.AsyncTask;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -138,7 +139,7 @@ public class WiFiActivity extends Activity {
         String msg = editSend.getText().toString();
         if(msg.length() == 0) return;
 
-        wifiTask.write(msg);
+        wifiTask.sendMessage(msg);
         editSend.setText("");
 
         textTX.setText(msg);
@@ -186,18 +187,31 @@ public class WiFiActivity extends Activity {
 
             try {
 
-                // Open the socket and read/write streams
-                socket = new Socket(address, port);
+                // Open the socket and connect to it
+                socket = new Socket();
+                socket.connect(new InetSocketAddress(address, port), timeout);
+
+                // Get the input and output streams
                 inStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 outStream = socket.getOutputStream();
 
-                socket.setSoTimeout(timeout);
-
-                // Confirm that it worked
+                // Confirm that the socket opened
                 if(socket.isConnected()) {
-                    Log.v(TAG, "Connection established!");
-                    publishProgress(CONNECTED_MSG);
-                } else disconnectSignal = true;
+
+                    // Make sure the input stream becomes ready, or timeout
+                    long start = System.currentTimeMillis();
+                    while(!inStream.ready()) {
+                        long now = System.currentTimeMillis();
+                        if(now - start > timeout) {
+                            Log.e(TAG, "Input stream timeout, disconnecting!");
+                            disconnectSignal = true;
+                            break;
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Socket did not connect!");
+                    disconnectSignal = true;
+                }
 
                 // Read messages in a loop until disconnected
                 while(!disconnectSignal) {
@@ -241,14 +255,14 @@ public class WiFiActivity extends Activity {
             if(msg == null) return;
 
             // Handle meta-messages
-            if(msg.equals(CONNECTED_MSG))
+            if(msg.equals(CONNECTED_MSG)) {
                 connected();
-            else if(msg.equals(DISCONNECTED_MSG))
+            } else if(msg.equals(DISCONNECTED_MSG))
                 disconnected();
             else if(msg.equals(PING_MSG))
                 {}
 
-            // Invoke the callback for received messages
+            // Invoke the gotMessage callback for all other messages
             else
                 gotMessage(msg);
 
@@ -258,7 +272,7 @@ public class WiFiActivity extends Activity {
         /**
          * Write a message to the connection. Runs in UI thread.
          */
-        public void write(String data) {
+        public void sendMessage(String data) {
 
             try {
                 outStream.write(data.getBytes());

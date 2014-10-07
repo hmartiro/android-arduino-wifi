@@ -7,12 +7,16 @@
 #include "WiFly.h"
 #include "Credentials.h"
 
-// Server object, created with the desired port
-Server server(80);
-
 // How often to ping (milliseconds)
 static const int PING_TIME = 1000;
+
+// Special messages
 static const String PING_MSG = "SOCKET_PING";
+static const String CONNECTED_MSG = "SOCKET_CONNECTED";
+
+// Server object, created with the desired port
+int port = 80;
+Server server(port);
 
 void setup() {
   
@@ -29,16 +33,25 @@ void setup() {
   }
   
   String ip = String(WiFly.ip());
-  Serial.println("IP: " + ip);
+  Serial.println("IP: " + ip + ", Port: " + String(port));
   
   server.begin();
+  Serial.println("WiFi server initialized!");
 }
 
 /**
  * Called whenever a newline-delimited message is received.
  */
-void message_received(String msg) {
+void got_message(String msg) {
   Serial.println("[RX] " + msg);
+}
+
+/**
+ * Send a message to the given client.
+ */
+void send_message(Client client, String msg) {
+  client.println(msg);
+  Serial.println("[TX] " + msg);
 }
 
 void loop() {
@@ -48,13 +61,15 @@ void loop() {
   
   if (client) {
     
-    // Buffer to store received data
+    // Buffer to store data
     String rx_buffer = "";
+    String tx_buffer = "";
     
     // Last time a ping was sent
     int senttime = millis();
 
     Serial.println("Connected to client.");
+    client.println(CONNECTED_MSG);
     
     while (client.connected()) {
       
@@ -67,12 +82,8 @@ void loop() {
           char c = client.read();
           
           if(c == '\n') {
-            
-            message_received(rx_buffer);
-            
-            client.println(rx_buffer);
-            Serial.println("[TX] " + rx_buffer);
-            
+            got_message(rx_buffer);
+            send_message(client, rx_buffer);
             rx_buffer = "";
             
           } else {
@@ -81,10 +92,23 @@ void loop() {
         }
       }
       
-      // Send a ping message once a second to keep the connection open
+      // Send messages from Serial to the connected client
+      // Delimited by newlines
+      if(Serial.available()) {
+        while(Serial.available()) {
+          
+          char c = Serial.read();
+          
+          if(c == '\n') {
+            send_message(client, tx_buffer);
+            tx_buffer = "";
+          } else tx_buffer += c;
+        }
+      }
+      
+      // Send regular ping messages to keep the connection open
       int now = millis();
       if (now - senttime > PING_TIME) {
-        Serial.println("[TX] " + PING_MSG);
         client.println(PING_MSG);
         senttime = now;
       }

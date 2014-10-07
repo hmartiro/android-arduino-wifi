@@ -1,8 +1,8 @@
 android-arduino-wifi
 ====================
 
-Demo of a clear and simple way to interface Android and Arduino over a
-WiFi connection for serial communication.
+Demo of a clear and robust way of creating a serial communication
+link between an Arduino and an Android device using WiFi.
 
 **Features:**
 
@@ -10,15 +10,16 @@ WiFi connection for serial communication.
  and associated library on Arduino
  * WiFi client socket implemented using AsyncTask in Android
  * UI for connecting, disconnecting, reading, and writing
- * Exception handling to prevent app crashes
+ * Exception handling and error management to prevent crashes
  * Parsing of complete newline-delimited messages from the stream
  * Lots of comments
 
 **Requirements:**
 
-  * Android device with WiFi enabled.
-  * Arduino with a WiFly shield.
-  * Android Studio and an Arduino IDE.
+  * Android device with WiFi enabled
+  * Arduino with a WiFly shield
+  * Android Studio and an Arduino IDE
+  * A WiFi network to connect to and a not-blocked port
 
 **Usage:**
 
@@ -28,6 +29,8 @@ WiFi connection for serial communication.
   * Wait for the WiFly to get an IP address.
   * Open the Android app, enter the address and port, and hit connect.
   * You should now be able to send messages and have them echoed back.
+  * You can also type messages into the Aruino serial monitor to send them
+  to the Android device (select newline endings).
 
 **Important files:**
 
@@ -37,6 +40,6 @@ WiFi connection for serial communication.
 
 **Issues:**
 
- * WiFly takes a long time (~20s) to connect to a network on startup.
- * After disconnecting, must wait about 6s before trying to reconnect (you
-will be able to tell based on the WiFly's LEDs)
+ * WiFly takes a long time (~20s) to connect to a network on startup (watch the LEDs).
+ * After disconnecting from a client, the WiFly takes about 6 seconds before
+ it can connect to another client (again, watch the LEDs).
