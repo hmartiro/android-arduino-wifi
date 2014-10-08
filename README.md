@@ -12,6 +12,7 @@ link between an Arduino and an Android device using WiFi.
  * UI for connecting, disconnecting, reading, and writing
  * Exception handling and error management to prevent crashes
  * Parsing of complete newline-delimited messages from the stream
+ * Timeout detection using a ping system
  * Lots of comments
 
 **Requirements:**
